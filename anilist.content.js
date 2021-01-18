@@ -38,15 +38,18 @@ async function process() {
 
     async function getMalTableFriendUpdatesTableOrNull(url) {
         console.log("Trying to get stats of friends")
-        return fetch(url, malRequestOptions).catch(e => console.error("ANIMALINTEGRATION\n" + JSON.stringify(e)))
+        return fetch(url, malRequestOptions).catch(e => console.error(JSON.stringify(e)))
             .then(res => res.text())
-            .catch(e => console.error("ANIMALINTEGRATION\n" + JSON.stringify(e)))
+            .catch(e => console.error(JSON.stringify(e)))
             .then(html => (new DOMParser())
                 .parseFromString(html, "text/html")
                 .querySelector("table[class=table-recently-updated]"));
     }
 
     function getFriendsStatistics(table) {
+        if (!table) {
+            console.log("something went wrong when getting table");
+        }
         const friends = [];
         for (let i = 1; i < table.rows.length; i++) {
             const row = table.rows[i];
