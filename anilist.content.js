@@ -81,7 +81,7 @@ async function process() {
             parentDiv.appendChild(a);
             a.className = "follow";
             a.href = fs.profileUrl;
-            a.style.cssText = "align-items:center; background:rgb(var(--color-foreground)); border-radius:3px; display:grid; font-size:1.4rem; grid-template-columns:30px 2fr 1fr .5fr; margin-bottom:10px; padding:10px;";
+            a.style.cssText = "align-items:center; background:rgb(var(--color-foreground)); border-radius:3px; display:grid; font-size:1.4rem; grid-template-columns:30px 2fr 1fr .5fr; margin-bottom:10px; padding:10px; border-style: solid; border-width: 1px;";
             const avatarDiv = document.createElement("div");
             a.appendChild(avatarDiv);
             avatarDiv.className = "avatar";
