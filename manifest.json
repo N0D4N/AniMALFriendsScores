@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "AniMalIntegration",
+  "version": "0.1",
+
+  "description": "Unofficial extension for displaying your friends from MAL's scores on AL's media pages",
+  "author": "N0D4N",
+
+  "permissions": [
+    "*://myanimelist.net/*",
+    "*://graphql.anilist.co/*",
+    "*://api.jikan.moe/*/manga/*",
+    "*://api.jikan.moe/*/anime/*",
+    "cookies"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["*://anilist.co/manga/*/", "*://anilist.co/anime/*/"],
+      "js": ["anilist.content.js"]
+    }
+  ]
+}
