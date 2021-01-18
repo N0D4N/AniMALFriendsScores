@@ -5,7 +5,8 @@ async function process() {
         headers: {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
             "User-Agent": window.navigator.userAgent
-        }
+        },
+        mode: "no-cors"
     };
 
     async function getMalIdFromAlId(alId) {
@@ -37,10 +38,9 @@ async function process() {
     }
 
     async function getMalTableFriendUpdatesTableOrNull(url) {
-        console.log("Trying to get stats of friends")
-        return fetch(url, malRequestOptions).catch(e => console.error(JSON.stringify(e)))
+        console.log("Trying to get stats of friends on url " + url );
+        return fetch(url, malRequestOptions)
             .then(res => res.text())
-            .catch(e => console.error(JSON.stringify(e)))
             .then(html => (new DOMParser())
                 .parseFromString(html, "text/html")
                 .querySelector("table[class=table-recently-updated]"));
