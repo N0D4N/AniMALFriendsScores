@@ -1,11 +1,9 @@
 {
   "manifest_version": 2,
   "name": "AniMALFriendsScores",
-  "version": "0.3",
-
+  "version": "0.4",
   "description": "Unofficial extension for displaying your friends from MAL's scores on AL's media pages",
   "author": "N0D4N",
-
   "permissions": [
     "*://myanimelist.net/*",
     "*://graphql.anilist.co/*",
@@ -13,11 +11,21 @@
     "*://api.jikan.moe/*/anime/*",
     "cookies"
   ],
-
   "content_scripts": [
     {
-      "matches": ["*://anilist.co/manga/*/", "*://anilist.co/anime/*/"],
-      "js": ["anilist.content.js"]
+      "matches": [
+        "*://anilist.co/manga/*/",
+        "*://anilist.co/anime/*/"
+      ],
+      "js": [
+        "anilist.content.js"
+      ]
     }
-  ]
+  ],
+  "homepage_url": "https://github.com/N0D4N/AniMALFriendsScores",
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
 }

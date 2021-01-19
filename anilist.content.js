@@ -9,10 +9,19 @@ async function process() {
         mode: "no-cors"
     };
 
+    function isChromium() {
+        try {
+            chrome.runtime.getBrowserInfo();
+        } catch (e) {
+            return true;
+        }
+        return false;
+    }
+
     async function getMalIdFromAlId(alId) {
         console.log("Trying to get Mal id for this entry")
         return fetch("https://graphql.anilist.co", {
-            method: 'post',
+            method: "post",
             headers: {
                 "Content-Type": "application/json"
             },
@@ -26,24 +35,20 @@ async function process() {
 
     async function malGetFullUrl(type, id) {
         console.log("Trying to get full url for this MAL entry")
-        const url = await fetch(`https://api.jikan.moe/v3/${type}/${id}`).then(res => res.json()).then(j => j.url);
+        const url = await fetch(`https://api.jikan.moe/v3/${type}/${id}`, {
+            method: "get"
+        }).then(res => res.json()).then(j => j.url);
         if (url) {
-            console.log("Got url from jikan");
+            console.log("Got url from jikan.moe");
             return url + "/stats";
         }
+        console.log("Failed to load full url from jikan.moe, trying to load it from MAL");
         return fetch(`https://myanimelist.net/${type}/${id}`, malRequestOptions).then(res => res.text())
-            .then(html => (new DOMParser())
-                .parseFromString(html, "text/html")
-                .querySelector("link[rel=canonical]").attributes["href"].value + "/stats");
-    }
-
-    async function getMalTableFriendUpdatesTableOrNull(url) {
-        console.log("Trying to get stats of friends on url " + url );
-        return fetch(url, malRequestOptions)
-            .then(res => res.text())
-            .then(html => (new DOMParser())
-                .parseFromString(html, "text/html")
-                .querySelector("table[class=table-recently-updated]"));
+            .then(function (html) {
+                const domparser = new DOMParser();
+                const dom = domparser.parseFromString(html, "text/html");
+                return dom.querySelector("link[rel=canonical]").attributes["href"].value + "/stats";
+            });
     }
 
     function getFriendsStatistics(table) {
@@ -69,6 +74,29 @@ async function process() {
             friends.push(friend);
         }
         return friends;
+    }
+
+    async function getMalTableFriendUpdatesTableOrNull(url) {
+        console.log("Trying to get stats of friends on url " + url);
+        let table;
+        if (isChromium()) {
+            console.log("Running in chromium")
+            return new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage({"url": url}, function (response) {
+                    if (response.friendsStats)
+                        resolve(response.friendsStats);
+                    else
+                        reject(response.error);
+                });
+            });
+        } else {
+            const table = await fetch(url, malRequestOptions)
+                .then(res => res.text())
+                .then(html => (new DOMParser())
+                    .parseFromString(html, "text/html")
+                    .querySelector("table[class=table-recently-updated]"));
+            return getFriendsStatistics(table);
+        }
     }
 
     function displayFriendsStatistics(friendsStats) {
@@ -110,15 +138,7 @@ async function process() {
     const malId = await getMalIdFromAlId(alId);
     const malFullUrl = await malGetFullUrl(type, malId);
     const table = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
-    if (!table) {
-        console.log("Something went wrong or friends stats were none");
-        return;
-    }
-    const friendsStats = getFriendsStatistics(table);
-    if (friendsStats.length === 0) {
-        console.log("Friend stats were empty")
-        return;
-    }
+    const friendsStats = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
     displayFriendsStatistics(friendsStats);
 }
 
