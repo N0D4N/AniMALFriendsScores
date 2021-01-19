@@ -9,15 +9,6 @@ async function process() {
         mode: "no-cors"
     };
 
-    function isChromium() {
-        try {
-            chrome.runtime.getBrowserInfo();
-        } catch (e) {
-            return true;
-        }
-        return false;
-    }
-
     async function getMalIdFromAlId(alId) {
         console.log("Trying to get Mal id for this entry")
         return fetch("https://graphql.anilist.co", {
@@ -34,21 +25,23 @@ async function process() {
     const getMediaType = () => window.location.href.includes("/anime/") ? "anime" : "manga";
 
     async function malGetFullUrl(type, id) {
-        console.log("Trying to get full url for this MAL entry")
+        /*console.log("Trying to get full url for this MAL entry")
         const url = await fetch(`https://api.jikan.moe/v3/${type}/${id}`, {
             method: "get"
         }).then(res => res.json()).then(j => j.url);
         if (url) {
             console.log("Got url from jikan.moe");
             return url + "/stats";
-        }
+        }*/
         console.log("Failed to load full url from jikan.moe, trying to load it from MAL");
-        return fetch(`https://myanimelist.net/${type}/${id}`, malRequestOptions).then(res => res.text())
-            .then(function (html) {
-                const domparser = new DOMParser();
-                const dom = domparser.parseFromString(html, "text/html");
-                return dom.querySelector("link[rel=canonical]").attributes["href"].value + "/stats";
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({"fullUrl": `https://myanimelist.net/${type}/${id}`}, function (response) {
+                if (response.fullUrl)
+                    resolve(response.fullUrl);
+                else
+                    reject(response.error);
             });
+        });
     }
 
     function getFriendsStatistics(table) {
@@ -78,25 +71,14 @@ async function process() {
 
     async function getMalTableFriendUpdatesTableOrNull(url) {
         console.log("Trying to get stats of friends on url " + url);
-        let table;
-        if (isChromium()) {
-            console.log("Running in chromium")
-            return new Promise((resolve, reject) => {
-                chrome.runtime.sendMessage({"url": url}, function (response) {
-                    if (response.friendsStats)
-                        resolve(response.friendsStats);
-                    else
-                        reject(response.error);
-                });
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage({"url": url}, function (response) {
+                if (response.friendsStats)
+                    resolve(response.friendsStats);
+                else
+                    reject(response.error);
             });
-        } else {
-            const table = await fetch(url, malRequestOptions)
-                .then(res => res.text())
-                .then(html => (new DOMParser())
-                    .parseFromString(html, "text/html")
-                    .querySelector("table[class=table-recently-updated]"));
-            return getFriendsStatistics(table);
-        }
+        });
     }
 
     function displayFriendsStatistics(friendsStats) {
@@ -137,7 +119,6 @@ async function process() {
 
     const malId = await getMalIdFromAlId(alId);
     const malFullUrl = await malGetFullUrl(type, malId);
-    const table = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
     const friendsStats = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
     displayFriendsStatistics(friendsStats);
 }
