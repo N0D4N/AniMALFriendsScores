@@ -25,14 +25,14 @@ async function process() {
     const getMediaType = () => window.location.href.includes("/anime/") ? "anime" : "manga";
 
     async function malGetFullUrl(type, id) {
-        /*console.log("Trying to get full url for this MAL entry")
+        console.log("Trying to get full url for this MAL entry")
         const url = await fetch(`https://api.jikan.moe/v3/${type}/${id}`, {
             method: "get"
         }).then(res => res.json()).then(j => j.url);
         if (url) {
             console.log("Got url from jikan.moe");
             return url + "/stats";
-        }*/
+        }
         console.log("Failed to load full url from jikan.moe, trying to load it from MAL");
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({"fullUrl": `https://myanimelist.net/${type}/${id}`}, function (response) {
