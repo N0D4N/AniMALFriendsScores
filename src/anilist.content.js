@@ -1,7 +1,5 @@
 async function process() {
     /// FUNCTIONS
-    const getFollowingDiv = () => document.querySelector("div[class=following]");
-
     async function getMalIdFromAlId(alId) {
         console.log("Trying to get Mal id for this entry")
         return fetch("https://graphql.anilist.co", {
@@ -50,7 +48,7 @@ async function process() {
     }
 
     function displayFriendsStatistics(friendsStats) {
-        const followingDiv = getFollowingDiv();
+        const followingDiv = document.querySelector("div[class=following]");
         friendsStats.forEach(fs => {
             const parentDiv = document.createElement("div");
             followingDiv.appendChild(parentDiv);
@@ -81,9 +79,11 @@ async function process() {
 
     const getAlId = () => window.location.href.match(/\d+/)[0];
     /// END OF FUNCTIONS
-    const followingDiv = getFollowingDiv();
-    if(followingDiv !== undefined && followingDiv !== null){
-        followingDiv.innerHTML = '';
+    for (let elementsByTagNameElement of document.getElementsByTagName('a')) {
+        if(elementsByTagNameElement.href.includes('myanimelist.net/profile'))
+        {
+            elementsByTagNameElement.parentElement.remove();
+        }
     }
     console.debug("In process func");
     const type = getMediaType();
