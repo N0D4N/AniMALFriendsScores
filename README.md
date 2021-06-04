@@ -26,3 +26,6 @@ Names were changed, in a browser your friends usernames names will be displayed 
 
 ## DISCLAIMER
 AniMALFriendsScores is not affiliated with MyAnimeList.net or Anilist.co
+
+## LICENSE
+AniMALFriendsScores uses MIT license. See LICENSE file for more details.
