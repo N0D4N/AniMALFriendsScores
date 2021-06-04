@@ -1,5 +1,5 @@
 # AniMALFriendsScores
-***
+
 ### Summary  
 Small **unofficial** browser extension for showing scores from your friends MyAnimeList account on AniList anime or manga pages.
 
