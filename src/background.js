@@ -26,12 +26,12 @@ function getFriendsStatistics(table) {
 function handleMessage(message, sender, sendResponse) {
     const xhr = new XMLHttpRequest();
 
-    if(message.url){
+    if (message.url) {
         xhr.open("GET", message.url);
         xhr.send();
 
         xhr.onload = function () {
-            if (xhr.status != 200) {
+            if (xhr.status !== 200) {
                 sendResponse({"error": "Failed request with status code " + xhr.status});
             } else {
                 const domParser = new DOMParser();
@@ -42,13 +42,12 @@ function handleMessage(message, sender, sendResponse) {
             }
         }
         return true;
-    }
-    else if(message.fullUrl){
+    } else if (message.fullUrl) {
         xhr.open("GET", message.fullUrl);
         xhr.send();
 
         xhr.onload = function () {
-            if (xhr.status != 200) {
+            if (xhr.status !== 200) {
                 sendResponse({"error": "Failed request with status code " + xhr.status});
             } else {
                 const domParser = new DOMParser();
@@ -66,3 +65,13 @@ function handleMessage(message, sender, sendResponse) {
 }
 
 chrome.runtime.onMessage.addListener(handleMessage);
+
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo) {
+    if (changeInfo.url !== undefined && changeInfo.url !== null && changeInfo.url.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)) {
+        const anilistId = changeInfo.url.match(/\d+/)[0];
+        console.log('sending message for ' + anilistId);
+        chrome.tabs.sendMessage(tabId, {'anilistId': anilistId});
+    }
+});
+
+console.log('start background script');

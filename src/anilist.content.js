@@ -1,13 +1,6 @@
 async function process() {
     /// FUNCTIONS
-    const malRequestOptions = {
-        method: 'get',
-        headers: {
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-            "User-Agent": window.navigator.userAgent
-        },
-        mode: "no-cors"
-    };
+    const getFollowingDiv = () => document.querySelector("div[class=following]");
 
     async function getMalIdFromAlId(alId) {
         console.log("Trying to get Mal id for this entry")
@@ -44,31 +37,6 @@ async function process() {
         });
     }
 
-    function getFriendsStatistics(table) {
-        if (!table) {
-            console.log("something went wrong when getting table");
-        }
-        const friends = [];
-        for (let i = 1; i < table.rows.length; i++) {
-            const row = table.rows[i];
-            const firstCellChildNodes = row.cells[0].querySelectorAll("div");
-            const avatar = firstCellChildNodes[0].querySelector("a").style.backgroundImage.replaceAll('"', "");
-            const nickname = firstCellChildNodes[1].querySelector("a").textContent;
-            const profileUrl = firstCellChildNodes[1].querySelector("a").href;
-            const score = row.cells[1].textContent;
-            const status = row.cells[2].textContent;
-            const friend = {
-                "avatar": avatar,
-                "nickname": nickname,
-                "profileUrl": profileUrl,
-                "score": score,
-                "status": status
-            };
-            friends.push(friend);
-        }
-        return friends;
-    }
-
     async function getMalTableFriendUpdatesTableOrNull(url) {
         console.log("Trying to get stats of friends on url " + url);
         return new Promise((resolve, reject) => {
@@ -82,7 +50,7 @@ async function process() {
     }
 
     function displayFriendsStatistics(friendsStats) {
-        const followingDiv = document.querySelector("div[class=following]");
+        const followingDiv = getFollowingDiv();
         friendsStats.forEach(fs => {
             const parentDiv = document.createElement("div");
             followingDiv.appendChild(parentDiv);
@@ -113,6 +81,10 @@ async function process() {
 
     const getAlId = () => window.location.href.match(/\d+/)[0];
     /// END OF FUNCTIONS
+    const followingDiv = getFollowingDiv();
+    if(followingDiv !== undefined && followingDiv !== null){
+        followingDiv.innerHTML = '';
+    }
     console.debug("In process func");
     const type = getMediaType();
     const alId = getAlId();
@@ -123,4 +95,15 @@ async function process() {
     displayFriendsStatistics(friendsStats);
 }
 
-process();
+function handleMessage(message) {
+    console.log(message);
+    if(message.anilistId === window.location.href.match(/\d+/)[0])
+    {
+        process();
+    }
+}
+
+chrome.runtime.onMessage.addListener(handleMessage);
+if (window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)) {
+    process();
+}
