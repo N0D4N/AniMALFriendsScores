@@ -48,7 +48,25 @@ async function process() {
     }
 
     function displayFriendsStatistics(friendsStats) {
-        const followingDiv = document.querySelector("div[class=following]");
+        let followingDiv = document.querySelector("div[class=following]");
+        if (followingDiv === null || followingDiv === undefined) {
+            let grids = document.getElementsByClassName('grid-section-wrap');
+            const preLastGrid = grids[grids.length - 2];
+            const nameOfDataAttribute = document.getElementsByClassName('grid-section-wrap')[0].attributes[0].name;
+            const grid = document.createElement('div');
+            grid.className = 'grid-section-wrap';
+            grid.setAttribute(nameOfDataAttribute, '');
+            const inGrid = document.createElement('div');
+            grid.appendChild(inGrid);
+            const h2 = document.createElement('h2');
+            h2.className = 'link';
+            h2.textContent = 'Following';
+            inGrid.appendChild(h2);
+            followingDiv = document.createElement('div');
+            followingDiv.className = 'following';
+            inGrid.appendChild(followingDiv);
+            preLastGrid.parentNode.insertBefore(grid, preLastGrid);
+        }
         friendsStats.forEach(fs => {
             const parentDiv = document.createElement("div");
             followingDiv.appendChild(parentDiv);
@@ -80,8 +98,7 @@ async function process() {
     const getAlId = () => window.location.href.match(/\d+/)[0];
     /// END OF FUNCTIONS
     for (let elementsByTagNameElement of document.getElementsByTagName('a')) {
-        if(elementsByTagNameElement.href.includes('myanimelist.net/profile'))
-        {
+        if (elementsByTagNameElement.href.includes('myanimelist.net/profile')) {
             elementsByTagNameElement.parentElement.remove();
         }
     }
@@ -97,8 +114,7 @@ async function process() {
 
 function handleMessage(message) {
     console.log(message);
-    if(message.anilistId === window.location.href.match(/\d+/)[0])
-    {
+    if (message.anilistId === window.location.href.match(/\d+/)[0]) {
         process();
     }
 }
