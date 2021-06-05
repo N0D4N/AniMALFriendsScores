@@ -1,3 +1,5 @@
+const extensionUniqueIdForCustomFollowingDiv = 'made-by-AniMALFriendsScores';
+
 async function process() {
     /// FUNCTIONS
     async function getMalIdFromAlId(alId) {
@@ -35,6 +37,36 @@ async function process() {
         });
     }
 
+    function createCustomFollowingDiv(){
+        const grid = document.getElementsByClassName('grid-section-wrap')[0];
+        const inGrid = document.createElement('div');
+        inGrid.id = extensionUniqueIdForCustomFollowingDiv;
+        grid.appendChild(inGrid);
+        const h2 = document.createElement('h2');
+        h2.className = 'link';
+        h2.textContent = 'Following';
+        inGrid.appendChild(h2);
+        const followingDiv = document.createElement('div');
+        followingDiv.className = 'following';
+        inGrid.appendChild(followingDiv);
+        return followingDiv;
+    }
+
+    function getOrCreateFollowingDiv(){
+        let followingDiv = document.querySelector("div[class=following]");
+        if (followingDiv === null || followingDiv === undefined ) {
+            followingDiv = createCustomFollowingDiv();
+        }
+        else {
+            const followingDivParent = document.getElementById(extensionUniqueIdForCustomFollowingDiv);
+            if (followingDivParent !== null && followingDivParent !== undefined) {
+                followingDivParent.remove();
+                followingDiv = createCustomFollowingDiv();
+            }
+        }
+        return followingDiv;
+    }
+
     async function getMalTableFriendUpdatesTableOrNull(url) {
         console.log("Trying to get stats of friends on url " + url);
         return new Promise((resolve, reject) => {
@@ -48,25 +80,7 @@ async function process() {
     }
 
     function displayFriendsStatistics(friendsStats) {
-        let followingDiv = document.querySelector("div[class=following]");
-        if (followingDiv === null || followingDiv === undefined) {
-            let grids = document.getElementsByClassName('grid-section-wrap');
-            const preLastGrid = grids[grids.length - 2];
-            const nameOfDataAttribute = document.getElementsByClassName('grid-section-wrap')[0].attributes[0].name;
-            const grid = document.createElement('div');
-            grid.className = 'grid-section-wrap';
-            grid.setAttribute(nameOfDataAttribute, '');
-            const inGrid = document.createElement('div');
-            grid.appendChild(inGrid);
-            const h2 = document.createElement('h2');
-            h2.className = 'link';
-            h2.textContent = 'Following';
-            inGrid.appendChild(h2);
-            followingDiv = document.createElement('div');
-            followingDiv.className = 'following';
-            inGrid.appendChild(followingDiv);
-            preLastGrid.parentNode.insertBefore(grid, preLastGrid);
-        }
+        let followingDiv = getOrCreateFollowingDiv();
         friendsStats.forEach(fs => {
             const parentDiv = document.createElement("div");
             followingDiv.appendChild(parentDiv);
@@ -97,9 +111,11 @@ async function process() {
 
     const getAlId = () => window.location.href.match(/\d+/)[0];
     /// END OF FUNCTIONS
-    for (let elementsByTagNameElement of document.getElementsByTagName('a')) {
-        if (elementsByTagNameElement.href.includes('myanimelist.net/profile')) {
-            elementsByTagNameElement.parentElement.remove();
+    for (let i = 0; i < 10; i++) {
+        for (let elementsByTagNameElement of document.getElementsByTagName('a')) {
+            if (elementsByTagNameElement.href.includes('myanimelist.net/profile')) {
+                elementsByTagNameElement.parentElement.remove();
+            }
         }
     }
     console.debug("In process func");
