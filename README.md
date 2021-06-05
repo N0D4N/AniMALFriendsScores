@@ -1,13 +1,13 @@
 # AniMALFriendsScores
-
+![GitHub](https://img.shields.io/github/license/N0D4N/AniMALFriendsScores?style=flat-square)![Mozilla Add-on](https://img.shields.io/amo/v/animalfriendsscores?style=flat-square)
 ### Summary  
-Small (<300 lines of code) **unofficial** browser extension for showing scores from your friends MyAnimeList account on AniList anime or manga pages.
+Small (<300 lines of code) **unofficial** browser extension for showing scores from your friends from MyAnimeList account on AniList anime or manga pages. 
 
 ### Installation  
-* Firefox   
-  Extension is available on [Mozilla addon page](https://addons.mozilla.org/en-US/firefox/addon/animalfriendsscores/).
+* Mozilla Firefox   
+  Extension is available on [Mozilla addon page](https://addons.mozilla.org/en-US/firefox/addon/animalfriendsscores/). Extension works in Firefox Android, however [requires extra steps](https://blog.mozilla.org/addons/2020/09/29/expanded-extension-support-in-firefox-for-android-nightly/).
 
-* Chrome  
+* Google Chrome / Chromium  
   I don't use Chrome or Chromium, so I don't have any plans on publishing it to [Chrome Web Store](https://chrome.google.com/webstore/). However there are ways to install extensions not from Chrome Web Store, here is one of them:
   1. Go to [releases page](https://github.com/N0D4N/AniMALFriendsScores/releases/latest).  
   2. Download `Source code.zip`.
@@ -24,11 +24,14 @@ Scores from MyAnimeList friends have thin white border around them.
 ![Screenshot](images/screenshot1.png)  
 Names were changed, in a browser your friends usernames names will be displayed correctly.
 
+### How does it work?
+Extension checks, if anime/manga on current AniList page has MyAnimeList id via [AniList GraphQL API](https://github.com/AniList/ApiV2-GraphQL-Docs), if it does, it fetches full url to anime/manga page via [Jikan REST API](https://jikan.moe/), then loads page with friends scores and statuses, parses it and displays on AniList page.
+
 ### CONTACT
 For any contacts, questions, ideas, proposals or anything else - please open an [issue](https://github.com/N0D4N/AniMALFriendsScores/issues/new), I'll try to answer all of them.
 
 ## DISCLAIMER
-AniMALFriendsScores is not affiliated with MyAnimeList.net or Anilist.co
+AniMALFriendsScores is **unofficial** extension and is not affiliated with MyAnimeList.net or Anilist.co in any way.
 
 ## LICENSE
-AniMALFriendsScores uses MIT license. See LICENSE file for more details.
+AniMALFriendsScores is licensed under MIT license. See LICENSE file for more details.
