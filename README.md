@@ -34,4 +34,4 @@ For any contacts, questions, ideas, proposals or anything else - please open an 
 AniMALFriendsScores is **unofficial** extension and is not affiliated with MyAnimeList.net or Anilist.co in any way.
 
 ## LICENSE
-AniMALFriendsScores is licensed under MIT license. See LICENSE file for more details.
+AniMALFriendsScores is licensed under MIT license. See [LICENSE](https://github.com/N0D4N/AniMALFriendsScores/blob/master/LICENSE) file for more details.
