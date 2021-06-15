@@ -2,6 +2,7 @@ function getFriendsStatistics(table) {
     if (!table) {
         console.log('something went wrong when getting table');
         console.debug(table);
+        return [];
     }
     else{
         const friends = [];

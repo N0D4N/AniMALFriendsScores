@@ -118,7 +118,8 @@ async function process() {
     /// END OF FUNCTIONS
     let currentUrl = '';
 
-    // looping forefer so we can react to change of url
+    // looping forever so we can react to change of url
+    // noinspection InfiniteLoopJS
     while(true){
         // Current page is anime or manga page
         if(window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)
@@ -146,4 +147,4 @@ async function process() {
         await sleep(500);
     }
 }
-process().then(_ => {});
+process().catch(er=> console.log(er)).then(r => console.log(r));
