@@ -1,5 +1,6 @@
 # AniMALFriendsScores
-![GitHub](https://img.shields.io/github/license/N0D4N/AniMALFriendsScores?style=flat-square)![Mozilla Add-on](https://img.shields.io/amo/v/animalfriendsscores?style=flat-square)
+[![GitHub](https://img.shields.io/github/license/N0D4N/AniMALFriendsScores?style=flat-square)](https://github.com/N0D4N/AniMALFriendsScores/blob/master/LICENSE)
+[![Mozilla Add-on](https://img.shields.io/amo/v/animalfriendsscores?style=flat-square)](https://addons.mozilla.org/en-US/firefox/addon/animalfriendsscores/)
 ### Summary  
 Small (<250 lines of effective code) **unofficial** browser extension for showing scores from your friends from MyAnimeList account on AniList anime or manga pages. 
 
