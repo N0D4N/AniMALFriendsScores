@@ -42,7 +42,7 @@ async function process() {
         });
     }
 
-    function createCustomFollowingDiv(){
+    function createCustomFollowingDiv() {
         const grid = document.getElementsByClassName('grid-section-wrap')[0];
         const inGrid = document.createElement('div');
         inGrid.id = extensionUniqueIdForCustomFollowingDiv;
@@ -57,12 +57,11 @@ async function process() {
         return followingDiv;
     }
 
-    function getOrCreateFollowingDiv(){
+    function getOrCreateFollowingDiv() {
         let followingDiv = document.querySelector('div[class=following]');
-        if (followingDiv === null || followingDiv === undefined ) {
+        if (followingDiv === null || followingDiv === undefined) {
             followingDiv = createCustomFollowingDiv();
-        }
-        else {
+        } else {
             const followingDivParent = document.getElementById(extensionUniqueIdForCustomFollowingDiv);
             if (followingDivParent !== null && followingDivParent !== undefined) {
                 followingDivParent.remove();
@@ -82,6 +81,41 @@ async function process() {
                     reject(response.error);
             });
         });
+    }
+
+    function createLinkToMal(type, id) {
+        const externalLinks = document.getElementsByClassName('external-links');
+        if (externalLinks.length > 0) {
+            const externalLinksDiv = externalLinks[0];
+            let dataAttributeName;
+            for (let attribute of externalLinksDiv.children[1].attributes) {
+                if (attribute.name.startsWith('data-')) {
+                    dataAttributeName = attribute.name;
+                    break;
+                }
+            }
+            const a = document.createElement('a');
+            a.className = 'external-link';
+            a.href = `https://myanimelist.net/${type}/${id}`;
+            a.text = 'MyAnimeList';
+            a.setAttribute(dataAttributeName, '');
+            externalLinksDiv.appendChild(a);
+        } else {
+            const sidebar = document.getElementsByClassName('sidebar');
+            let dataAttributeName;
+            for (let attribute of sidebar[0].children[sidebar[0].children.length - 1].attributes) {
+                if (attribute.name.startsWith('data-')) {
+                    dataAttributeName = attribute.name;
+                    break;
+                }
+            }
+            const a = document.createElement('a');
+            a.className = 'button';
+            a.href = `https://myanimelist.net/${type}/${id}`;
+            a.text = 'MyAnimeList';
+            a.setAttribute(dataAttributeName, '');
+            sidebar[0].appendChild(a);
+        }
     }
 
     function displayFriendsStatistics(friendsStats) {
@@ -120,18 +154,23 @@ async function process() {
 
     // looping forever so we can react to change of url
     // noinspection InfiniteLoopJS
-    while(true){
+    while (true) {
         // Current page is anime or manga page
-        if(window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)
-        &&
-        // Url changed
-        window.location.href !== currentUrl){
+        if (window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)
+            &&
+            // Url changed
+            window.location.href !== currentUrl) {
             currentUrl = window.location.href;
             // Clear all scores from previous pages
             for (let i = 0; i < 10; i++) { // loop 10 times because clearing once can leave previu
                 for (let elementsByTagNameElement of document.getElementsByTagName('a')) {
-                    if (elementsByTagNameElement.href.includes('myanimelist.net/profile')) {
-                        elementsByTagNameElement.parentElement.remove();
+                    if (elementsByTagNameElement.href.includes('https://myanimelist.net')) {
+                        if(elementsByTagNameElement.href.includes('profile')){
+                            elementsByTagNameElement.parentElement.remove();
+                        }
+                        else {
+                            elementsByTagNameElement.remove();
+                        }
                     }
                 }
             }
@@ -139,12 +178,17 @@ async function process() {
             const type = getMediaType();
             const alId = getAlId();
 
+
             const malId = await getMalIdFromAlId(alId);
-            const malFullUrl = await malGetFullUrl(type, malId);
-            const friendsStats = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
-            displayFriendsStatistics(friendsStats);
+            if (malId !== null && malId !== undefined) {
+                createLinkToMal(type, malId);
+                const malFullUrl = await malGetFullUrl(type, malId);
+                const friendsStats = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
+                displayFriendsStatistics(friendsStats);
+            }
         }
         await sleep(500);
     }
 }
-process().catch(er=> console.log(er)).then(r => console.log(r));
+
+process().catch(er => console.log(er)).then(r => console.log(r));
