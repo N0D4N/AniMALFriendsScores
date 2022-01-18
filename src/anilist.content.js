@@ -76,7 +76,7 @@ async function process() {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage({'url': url}, function (response) {
                 if (response.friendsStats)
-                    resolve(response.friendsStats);
+                    resolve({'friendsStats': response.friendsStats, 'loggedIn': response.loggedIn});
                 else
                     reject(response.error);
             });
@@ -118,34 +118,44 @@ async function process() {
         }
     }
 
-    function displayFriendsStatistics(friendsStats) {
-        let followingDiv = getOrCreateFollowingDiv();
-        friendsStats.forEach(fs => {
-            const parentDiv = document.createElement('div');
-            followingDiv.appendChild(parentDiv);
-            parentDiv.className = 'limit';
-            const a = document.createElement('a');
-            parentDiv.appendChild(a);
-            a.className = 'follow';
-            a.href = fs.profileUrl;
-            a.style.cssText = 'align-items:center; background:rgb(var(--color-foreground)); border-radius:3px; display:grid; font-size:1.4rem; grid-template-columns:30px 2fr 1fr .5fr; margin-bottom:10px; padding:10px; border-style: solid; border-width: 1px;';
-            const avatarDiv = document.createElement('div');
-            a.appendChild(avatarDiv);
-            avatarDiv.className = 'avatar';
-            avatarDiv.style.cssText = 'background-position:50%; background-repeat:no-repeat; background-size:cover; border-radius:3px; height:30px; width:30px; background-image: ' + fs.avatar;
-            const nameDiv = document.createElement('div');
-            a.appendChild(nameDiv);
-            nameDiv.className = 'name';
-            nameDiv.innerText = fs.nickname;
-            nameDiv.style.cssText = 'padding-left:15px; font-weight:500;';
-            const statusDiv = document.createElement('div');
-            a.appendChild(statusDiv);
-            statusDiv.className = 'status';
-            statusDiv.innerText = fs.status;
-            const scoreSpan = document.createElement('span');
-            a.appendChild(scoreSpan);
-            scoreSpan.innerText = fs.score;
-        });
+    function createFriendStatDiv(hrefUrl, nickname, avatarUrl, statusMessage, score){
+		const parentDiv = document.createElement('div');
+		parentDiv.className = 'limit';
+		const a = document.createElement('a');
+		parentDiv.appendChild(a);
+		a.className = 'follow';
+		a.href = hrefUrl;
+		a.style.cssText = 'align-items:center; background:rgb(var(--color-foreground)); border-radius:3px; display:grid; font-size:1.4rem; grid-template-columns:30px 2fr 1fr .5fr; margin-bottom:10px; padding:10px; border-style: solid; border-width: 1px;';
+		const avatarDiv = document.createElement('div');
+		a.appendChild(avatarDiv);
+		avatarDiv.className = 'avatar';
+		avatarDiv.style.cssText = 'background-position:50%; background-repeat:no-repeat; background-size:cover; border-radius:3px; height:30px; width:30px; background-image: ' + avatarUrl;
+        const nameDiv = document.createElement('div');
+        a.appendChild(nameDiv);
+        nameDiv.className = 'name';
+		nameDiv.innerText = nickname;
+        nameDiv.style.cssText = 'padding-left:15px; font-weight:500;';
+        const statusDiv = document.createElement('div');
+        a.appendChild(statusDiv);
+        statusDiv.className = 'status';
+        statusDiv.innerText = statusMessage;
+		const scoreSpan = document.createElement('span');
+        a.appendChild(scoreSpan);
+        scoreSpan.innerText = score;
+		return parentDiv;
+    }
+
+    function displayFriendsStatistics(friendsStats, isLoggedIn) {
+        const followingDiv = getOrCreateFollowingDiv();
+		if(isLoggedIn){
+			friendsStats.forEach(fs => {
+				followingDiv.appendChild(createFriendStatDiv(fs.profileUrl, fs.nickname, fs.avatar, fs.status, fs.score));
+			});
+		}
+        else{
+			followingDiv.appendChild(createFriendStatDiv('https://myanimelist.net/login.php', 'You should be logged in to MAL to use AniMALFriendsScores extension',
+														 'url("https://cdn.myanimelist.net/images/MalAppIcon_180px.png")', 'Click to log in', ''));
+		}
     }
 
     const getAlId = () => window.location.href.match(/\d+/)[0];
@@ -183,8 +193,8 @@ async function process() {
             if (malId !== null && malId !== undefined) {
                 createLinkToMal(type, malId);
                 const malFullUrl = await malGetFullUrl(type, malId);
-                const friendsStats = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
-                displayFriendsStatistics(friendsStats);
+                const response = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
+                displayFriendsStatistics(response.friendsStats, response.loggedIn);
             }
         }
         await sleep(500);
