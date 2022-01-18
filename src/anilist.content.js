@@ -24,9 +24,9 @@ async function process() {
 
     async function malGetFullUrl(type, id) {
         console.log('Trying to get full url for this MAL entry')
-        const url = await fetch(`https://api.jikan.moe/v3/${type}/${id}`, {
+        const url = await fetch(`https://api.jikan.moe/v4/${type}/${id}`, {
             method: 'get'
-        }).then(res => res.json()).then(j => j.url);
+        }).then(res => res.json()).then(j => j.data.url);
         if (url) {
             console.log('Got url from jikan.moe');
             return url + '/stats';
