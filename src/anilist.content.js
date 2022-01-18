@@ -84,9 +84,10 @@ async function process() {
     }
 
     function createLinkToMal(type, id) {
-        const externalLinks = document.getElementsByClassName('external-links');
+        const isMobile = document.getElementsByClassName('mobile-nav').length > 0;
+        const externalLinks = document.getElementsByClassName('external-links-wrap');
         if (externalLinks.length > 0) {
-            const externalLinksDiv = externalLinks[0];
+            const externalLinksDiv = externalLinks[1] ? externalLinks[1] : externalLinks[0];
             let dataAttributeName;
             for (let attribute of externalLinksDiv.children[1].attributes) {
                 if (attribute.name.startsWith('data-')) {
@@ -113,8 +114,14 @@ async function process() {
             a.className = 'button';
             a.href = `https://myanimelist.net/${type}/${id}`;
             a.text = 'MyAnimeList';
+            a.style.cssText = 'display: flex;';
             a.setAttribute(dataAttributeName, '');
-            sidebar[0].appendChild(a);
+            if(isMobile){
+                document.getElementsByClassName('overview')[0].appendChild(a);
+            }
+            else{
+                sidebar[0].appendChild(a);
+            }
         }
     }
 
