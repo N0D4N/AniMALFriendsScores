@@ -35,9 +35,15 @@ function handleMessage(message, sender, sendResponse) {
         }).then(data => data.text()).then(html =>{
             const domParser = new DOMParser();
             const dom = domParser.parseFromString(html, 'text/html');
-            const table = dom.querySelector('table[class=table-recently-updated]');
-            const friendsStats = getFriendsStatistics(table);
-            sendResponse({'friendsStats': friendsStats});
+            if(dom.querySelector('a.header-profile-link') == null){
+                console.log('user is not logged in MAL');
+                sendResponse({'friendsStats': [], 'loggedIn': false});
+            }
+            else {
+                const table = dom.querySelector('table[class=table-recently-updated]');
+                const friendsStats = getFriendsStatistics(table);
+                sendResponse({'friendsStats': friendsStats, 'loggedIn': true});
+            }
         });
         return true;
     } else if (message.fullUrl) {
