@@ -191,6 +191,7 @@ async function process() {
     /// END OF FUNCTIONS
 
     let currentUrl = '';
+    console.debug('In process func');
 
     // looping forever so we can react to change of url
     // noinspection InfiniteLoopJS
@@ -210,7 +211,6 @@ async function process() {
                     }
                 }
             }
-            console.debug('In process func');
             const type = getMediaType();
             const alId = getAlId();
 
