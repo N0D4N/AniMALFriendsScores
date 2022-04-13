@@ -1,3 +1,5 @@
+console.log('read start of script');
+
 const extensionUniqueIdForCustomFollowingDiv = 'made-by-AniMALFriendsScores';
 const malUrl = 'https://myanimelist.net';
 const mal = 'MyAnimeList';
@@ -6,7 +8,7 @@ const cdnMalImages = 'https://cdn.myanimelist.net/images/';
 async function process() {
     /// FUNCTIONS
     async function getMalIdFromAlId(alId) {
-        console.log('Trying to get Mal id for this entry');
+        console.log('Trying to get Mal id for this entry: ' + JSON.stringify({'anilistId': alId}));
         return fetch('https://graphql.anilist.co', {
             method: 'post',
             headers: {
@@ -30,12 +32,16 @@ async function process() {
     const getMediaType = () => window.location.href.includes('/anime/') ? 'anime' : 'manga';
 
     async function malGetFullUrl(type, id) {
-        console.log('Trying to get full url for this MAL entry')
-        const url = await fetch(`https://api.jikan.moe/v4/${type}/${id}`, {
+        const jikanUrl = `https://api.jikan.moe/v4/${type}/${id}`;
+        console.log('Trying to get full url for this MAL entry from jikan: ' + JSON.stringify({'jikanUrl': jikanUrl}));
+        const url = await fetch(jikanUrl, {
             method: 'get'
-        }).then(res => res.json()).then(j => j.data.url);
+        }).then(res => res.json()).then(j => {
+            console.log(JSON.stringify(j));
+            return j?.data?.url;
+        });
         if (url) {
-            console.log('Got url from jikan.moe');
+            console.log('Got full url from jikan.moe: ' + JSON.stringify({'fullUrl': url}));
             return url + '/stats';
         }
         console.log('Failed to load full url from jikan.moe, trying to load it from MAL');
@@ -185,6 +191,7 @@ async function process() {
     /// END OF FUNCTIONS
 
     let currentUrl = '';
+    console.debug('In process func');
 
     // looping forever so we can react to change of url
     // noinspection InfiniteLoopJS
@@ -194,6 +201,7 @@ async function process() {
             &&
             // Current page is anime or manga page
             window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)) {
+            console.log('Changed url: ' + JSON.stringify({'previousUrl': currentUrl, 'newUrl': window.location.href}));
             currentUrl = window.location.href;
             // Clear all scores from previous pages
             for (let i = 0; i < 10; i++) { // loop 10 times because clearing once can leave previous
@@ -203,7 +211,6 @@ async function process() {
                     }
                 }
             }
-            console.debug('In process func');
             const type = getMediaType();
             const alId = getAlId();
 
@@ -214,6 +221,9 @@ async function process() {
                 const response = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
                 displayFriendsStatistics(response.friendsStats, response.loggedIn);
                 createLinkToMal(type, malId);
+            }
+            else{
+                console.log('Seems like this AL page doesn\'t have MAL id');
             }
         }
         await sleep(500);
