@@ -53,7 +53,7 @@ function handleMessage(message, sender, sendResponse) {
         }).then(data => data.text()).then(html => {
             const domParser = new DOMParser();
             const dom = domParser.parseFromString(html, 'text/html');
-            const fullUrl = dom.querySelector('link[rel=canonical]').attributes['href'].value + '/stats';
+            const fullUrl = dom.querySelector('link[rel=canonical]').attributes['href'].value;
             sendResponse({'fullUrl': fullUrl});
         });
         return true;
