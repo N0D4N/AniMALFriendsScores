@@ -4,6 +4,8 @@ const extensionUniqueIdForCustomFollowingDiv = 'made-by-AniMALFriendsScores';
 const malUrl = 'https://myanimelist.net';
 const mal = 'MyAnimeList';
 const cdnMalImages = 'https://cdn.myanimelist.net/images/';
+const cache = new Map();
+let  isLoggedIn = true;
 
 async function process() {
     /// FUNCTIONS
@@ -42,7 +44,7 @@ async function process() {
         });
         if (url) {
             console.log('Got full url from jikan.moe: ' + JSON.stringify({'fullUrl': url}));
-            return url + '/stats';
+            return url;
         }
         console.log('Failed to load full url from jikan.moe, trying to load it from MAL');
         return new Promise((resolve, reject) => {
@@ -104,7 +106,7 @@ async function process() {
         throw "Couldn't get value of data attribute";
     }
 
-    function createLinkToMal(type, id) {
+    function createLinkToMal(fullUrl) {
         const isMobile = document.getElementsByClassName('mobile-nav').length > 0;
         const externalLinks = document.getElementsByClassName('external-links-wrap');
         if (externalLinks.length > 0) {
@@ -112,7 +114,7 @@ async function process() {
             const dataAttributeName = getDataAttributeName(externalLinksDiv.children[0]);
             const a = document.createElement('a');
             a.className = 'external-link';
-            a.href = getMediaUrl(type, id);
+            a.href = fullUrl;
             a.setAttribute(dataAttributeName, '');
             a.style.cssText = '--link-color: #2e51a2;';
             const div = document.createElement('div');
@@ -136,7 +138,7 @@ async function process() {
             const dataAttributeName = getDataAttributeName(sidebar[0].children[sidebar[0].children.length - 1]);
             const a = document.createElement('a');
             a.className = 'button';
-            a.href = getMediaUrl(type, id);
+            a.href = fullUrl;
             a.text = mal;
             a.style.cssText = 'display: flex;';
             a.setAttribute(dataAttributeName, '');
@@ -187,6 +189,30 @@ async function process() {
         }
     }
 
+    async function getCachedOrQuery(type, alId){
+        const cachedEntry = cache.get(alId);
+        if(cachedEntry){
+            console.log('Data was cached: ' + JSON.stringify(cachedEntry));
+            return cachedEntry;
+        }
+        else{
+            console.log('Data wasn\'t cached');
+            const malId = await getMalIdFromAlId(alId);
+            if (malId !== null && malId !== undefined) {
+                const malFullUrl = await malGetFullUrl(type, malId);
+                const response = await getMalTableFriendUpdatesTableOrNull(malFullUrl + '/stats');
+                isLoggedIn = response.loggedIn;
+                const result = {'friendStats': response.friendsStats, 'fullUrl': malFullUrl};
+                cache.set(alId, result);
+                return result;
+            }
+            else{
+                console.log('Seems like this AL page doesn\'t have MAL id');
+                return null;
+            }
+        }
+    }
+
     const getAlId = () => window.location.href.match(/\d+/)[0];
     /// END OF FUNCTIONS
 
@@ -214,16 +240,10 @@ async function process() {
             const type = getMediaType();
             const alId = getAlId();
 
-
-            const malId = await getMalIdFromAlId(alId);
-            if (malId !== null && malId !== undefined) {
-                const malFullUrl = await malGetFullUrl(type, malId);
-                const response = await getMalTableFriendUpdatesTableOrNull(malFullUrl);
-                displayFriendsStatistics(response.friendsStats, response.loggedIn);
-                createLinkToMal(type, malId);
-            }
-            else{
-                console.log('Seems like this AL page doesn\'t have MAL id');
+            const info = await getCachedOrQuery(type, alId);
+            if(info){
+                displayFriendsStatistics(info.friendStats, isLoggedIn);
+                createLinkToMal(info.fullUrl);
             }
         }
         await sleep(500);
