@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "AniMALFriendsScores",
-  "version": "0.17",
+  "version": "0.18",
   "description": "Unofficial extension for displaying your friends from MAL's scores on AL's media pages",
   "author": "N0D4N",
   "permissions": [
@@ -18,6 +18,9 @@
       ],
       "js": [
         "anilist.content.js"
+      ],
+      "css":[
+        "AniMALFriendsScores.css"
       ]
     }
   ],
