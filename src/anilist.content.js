@@ -209,11 +209,44 @@ async function process() {
     }
 
     const getAlId = () => window.location.href.match(/\d+/)[0];
+
+    function getAllTagsAndGenresOnPage(){
+        const result = [];
+        const tags = document.querySelectorAll('div#app > div.page-content  div.tags > div.tag > a.name');
+        for(let i = 0; i < tags.length; i++){
+            result.push(tags[i].textContent);
+        }
+        const genres = [...document.querySelectorAll('div.sidebar > div.data > div.data-list')].find(x=> x.firstChild.textContent === 'Genres')?.querySelectorAll('div.value > span > a');
+        if(genres){
+            result.push(...[...genres].map(x=>x.textContent));
+        }
+        return result.map(x=>x.trim().toUpperCase());
+    }
+    const getBlockedTagsAndGenresAsync = () => browser.storage.local.get({'tags': []}).then(t => t.tags).catch(er => []);
+    const setTitleColor = (color) => document.querySelector('.content > h1').style.color = color;
+    function highlightIfContainsBlockedTagsAndGenres(blocked){
+        console.log('at start of highlight');
+        // if(blocked.length === 0){
+        //     return;
+        // }
+        try{
+            const present = getAllTagsAndGenresOnPage();
+            console.log(blocked.join(';'));
+            console.log(present.join(';'));
+            if(present.some(x=> blocked.includes(x))){
+                setTitleColor('red');
+            }
+        }
+        catch(err){
+            console.error(err);
+        }
+        console.log('at end of highlight');
+    }
     /// END OF FUNCTIONS
 
     let currentUrl = '';
     console.debug('In process func');
-
+    const blocked = await getBlockedTagsAndGenresAsync();
     // looping forever so we can react to change of url
     // noinspection InfiniteLoopJS
     while (true) {
@@ -223,6 +256,7 @@ async function process() {
             // Current page is anime or manga page
             window.location.href.match(/(anilist.co\/(manga|anime)\/(\d+)\/([\w-_]+)((\/social)|$|(\/$)))/)) {
             console.log('Changed url: ' + JSON.stringify({'previousUrl': currentUrl, 'newUrl': window.location.href}));
+            setTitleColor('')
             currentUrl = window.location.href;
             // Clear all scores from previous pages
             for (let i = 0; i < 10; i++) { // loop 10 times because clearing once can leave previous
@@ -232,6 +266,8 @@ async function process() {
                     }
                 }
             }
+            highlightIfContainsBlockedTagsAndGenres(blocked);
+
             const type = getMediaType();
             const alId = getAlId();
 
@@ -241,7 +277,7 @@ async function process() {
                 createLinkToMal(info.fullUrl);
             }
         }
-        await sleep(500);
+        await sleep(1000);
     }
 }
 

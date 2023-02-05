@@ -9,8 +9,12 @@
     "*://myanimelist.net/manga/*",
     "*://graphql.anilist.co/*",
     "*://api.jikan.moe/*/manga/*",
-    "*://api.jikan.moe/*/anime/*"
+    "*://api.jikan.moe/*/anime/*",
+    "storage"
   ],
+  "options_ui":{
+    "page": "options.html"
+  },
   "content_scripts": [
     {
       "matches": [
